@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="44" fill="#ff5614"/>
+  <g fill="none" stroke-width="10.5" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(100,78) rotate(-14) scale(0.84)">
+      <path d="M -79,0 C -75,-3 -71,-7 -68,-13 L 68,-13 C 71,-7 75,-3 79,0 C 75,3 71,7 68,13 C 60,31 33,48 0,48 C -33,48 -60,31 -68,13 C -71,7 -75,3 -79,0 Z" stroke="#ffffff"/>
+      <path d="M -68,-13 L 68,-13" stroke="#ffffff"/>
+      <path d="M 10.6,-9.6 L 66.0,8.2 M 8.4,-7.5 L 52.6,21.6 M 4.7,-6.0 L 29.1,30.7 M 0.0,-5.5 L 0.0,34.0 M -4.7,-6.0 L -29.1,30.7 M -8.4,-7.5 L -52.6,21.6 M -10.6,-9.6 L -66.0,8.2" stroke="#ffffff"/>
+      <path d="M -68,0 A 68,34 0 0 0 68,0" stroke="#ffffff"/>
+    </g>
+    <path d="M 0,-19 C 4,-10 11,-4 11,3 A 11,11 0 1 1 -11,3 C -11,-4 -4,-10 0,-19 Z" fill="none" stroke="#ffffff" transform="translate(70,152) scale(0.9)"/>
+    <path d="M 0,-19 C 4,-10 11,-4 11,3 A 11,11 0 1 1 -11,3 C -11,-4 -4,-10 0,-19 Z" fill="none" stroke="#ffffff" transform="translate(106,161) scale(0.62)"/>
+    <path d="M 0,-19 C 4,-10 11,-4 11,3 A 11,11 0 1 1 -11,3 C -11,-4 -4,-10 0,-19 Z" fill="none" stroke="#ffffff" transform="translate(138,152) scale(0.5)"/>
+  </g>
+</svg>
