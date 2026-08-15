@@ -33,7 +33,7 @@ export default {
   min-height: 100dvh;
   max-width: 560px;
   margin: 0 auto;
-  padding: 0 22px env(safe-area-inset-bottom);
+  padding: env(safe-area-inset-top) 22px env(safe-area-inset-bottom);
 }
 
 .masthead {
