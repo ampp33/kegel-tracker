@@ -1,31 +1,24 @@
 :root {
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --surface-2: #eef0f4;
-  --border: #e2e5ea;
-  --text: #14161a;
-  --muted: #6b7280;
-  --accent: #4f7cff;
-  --accent-soft: #e8eeff;
-  --squeeze: #f0576f;
-  --relax: #1fb6a4;
-  --shadow: 0 1px 2px rgba(16, 20, 30, 0.06), 0 8px 24px rgba(16, 20, 30, 0.06);
-  --radius: 16px;
+  --paper: #f5f4f1;
+  --ink: #0b0b0b;
+  --ink-invert: #f5f4f1;
+  --muted: #8c8b85;
+  --rule: #dcdad3;
+  --accent: #ff5614;
+
+  --display: 'Archivo Black', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --sans: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1117;
-    --surface: #171a22;
-    --surface-2: #1f232d;
-    --border: #272c38;
-    --text: #eef1f6;
-    --muted: #9099ab;
-    --accent: #6b93ff;
-    --accent-soft: #1d2637;
-    --squeeze: #ff6b81;
-    --relax: #2dd4bf;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.3);
+    --paper: #0b0b0b;
+    --ink: #f5f4f1;
+    --ink-invert: #0b0b0b;
+    --muted: #7d7c76;
+    --rule: #272725;
+    --accent: #ff5614;
   }
 }
 
@@ -41,10 +34,9 @@ body {
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
@@ -55,47 +47,74 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 
-input,
-select {
-  font: inherit;
-  color: inherit;
+/* --- type primitives ------------------------------------------------ */
+
+/* Oversized grotesque: tight tracking, leading under 1. */
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.84;
+  text-transform: uppercase;
 }
+
+/* The one flourish — pink italic serif, always lowercase. */
+.script {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 0.9;
+  text-transform: none;
+  color: var(--accent);
+}
+
+.micro {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rule {
+  height: 1px;
+  background: var(--rule);
+}
+
+/* --- controls -------------------------------------------------------- */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-height: 52px;
-  padding: 0 28px;
+  min-height: 54px;
+  padding: 0 34px;
   border-radius: 999px;
-  font-size: 17px;
+  font-size: 11px;
   font-weight: 600;
-  background: var(--surface-2);
-  transition: transform 0.12s ease, opacity 0.12s ease;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--ink-invert);
+  transition: transform 0.14s ease, opacity 0.14s ease;
 }
 
 .btn:active {
   transform: scale(0.97);
 }
 
-.btn--primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn--ghost {
-  background: transparent;
-  border: 1px solid var(--border);
+.btn--text {
+  background: none;
   color: var(--muted);
+  padding: 0 12px;
+  min-height: 54px;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+.btn--text:active {
+  color: var(--ink);
 }

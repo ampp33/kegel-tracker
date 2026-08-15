@@ -1,75 +1,67 @@
 <template>
   <div class="screen">
-    <header class="streaks">
-      <div class="streaks__item">
-        <span class="streaks__value">{{ store.currentStreak }}</span>
-        <span class="streaks__label">day streak</span>
+    <section class="marks">
+      <div class="mark">
+        <span class="mark__n display">{{ pad(store.currentStreak) }}</span>
+        <span class="mark__l micro">Day streak</span>
       </div>
-      <div class="streaks__divider"></div>
-      <div class="streaks__item">
-        <span class="streaks__value">{{ store.longestStreak }}</span>
-        <span class="streaks__label">best streak</span>
-      </div>
-    </header>
-
-    <section class="stage">
-      <p class="stage__rep">
-        <template v-if="status === 'idle'">{{ settings.repetitions }} reps &middot; {{ totalLabel }}</template>
-        <template v-else-if="status === 'done'">Session complete</template>
-        <template v-else>Rep {{ rep }} of {{ settings.repetitions }}</template>
-      </p>
-
-      <div class="circle-wrap">
-        <div
-          class="circle"
-          :class="[`circle--${visualPhase}`, { 'circle--idle': !isActive }]"
-          :style="{ transform: `scale(${scale})` }"
-        >
-          <div class="circle__inner">
-            <span class="circle__cue">{{ cue }}</span>
-            <span v-if="isActive" class="circle__count">{{ secondsLeft }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="progress">
-        <div class="progress__bar" :style="{ width: `${sessionProgress * 100}%` }"></div>
+      <div class="mark">
+        <span class="mark__n display">{{ pad(store.longestStreak) }}</span>
+        <span class="mark__l micro">Best ever</span>
       </div>
     </section>
 
-    <section class="controls">
-      <button v-if="status === 'idle'" class="btn btn--primary" @click="start">Start</button>
+    <p class="eyebrow micro">{{ eyebrow }}</p>
 
-      <button v-else-if="status === 'running'" class="btn btn--primary" @click="pause">Pause</button>
+    <section class="stage">
+      <div class="orb-wrap">
+        <div class="orb" :class="`orb--${orbState}`" :style="{ transform: `scale(${scale})` }">
+          <span v-if="isActive" class="orb__n display">{{ secondsLeft }}</span>
+        </div>
+      </div>
+
+      <h1 class="cue" :class="cueScript ? 'script' : 'display'">{{ cue }}</h1>
+    </section>
+
+    <div class="tick" aria-hidden="true">
+      <span class="tick__fill" :style="{ width: `${sessionProgress * 100}%` }"></span>
+    </div>
+
+    <section class="controls">
+      <button v-if="status === 'idle'" class="btn" @click="start">Begin</button>
+
+      <button v-else-if="status === 'running'" class="btn" @click="pause">Pause</button>
 
       <template v-else-if="status === 'paused'">
-        <button class="btn btn--primary" @click="resume">Resume</button>
-        <button class="btn btn--ghost" @click="reset">Reset</button>
+        <button class="btn" @click="resume">Resume</button>
+        <button class="btn btn--text" @click="reset">Reset</button>
       </template>
 
       <template v-else>
-        <button class="btn btn--primary" @click="start">Go again</button>
-        <button class="btn btn--ghost" @click="reset">Reset</button>
+        <button class="btn" @click="start">Go again</button>
+        <button class="btn btn--text" @click="reset">Reset</button>
       </template>
     </section>
 
     <p v-if="store.error" class="notice">{{ store.error }}</p>
 
-    <transition name="fade">
+    <transition name="collapse">
       <section v-if="!inSession" class="settings">
         <div v-for="field in fields" :key="field.key" class="settings__row">
-          <span class="settings__label">{{ field.label }}</span>
+          <span class="settings__label micro">{{ field.label }}</span>
           <div class="stepper">
             <button
               class="stepper__btn"
+              :aria-label="`Decrease ${field.label}`"
               :disabled="settings[field.key] <= field.min"
               @click="step(field, -field.step)"
             >
               &minus;
             </button>
-            <span class="stepper__value">{{ settings[field.key] }}{{ field.unit }}</span>
+            <span class="stepper__value display">{{ settings[field.key] }}{{ field.unit }}</span>
             <button
               class="stepper__btn"
+              :aria-label="`Increase ${field.label}`"
               :disabled="settings[field.key] >= field.max"
               @click="step(field, field.step)"
             >
@@ -79,6 +71,11 @@
         </div>
       </section>
     </transition>
+
+    <aside v-if="isActive" class="spine" aria-hidden="true">
+      <span class="spine__text micro">{{ phase === 'squeeze' ? 'Hold' : 'Release' }}</span>
+      <span class="spine__rule"></span>
+    </aside>
   </div>
 </template>
 
@@ -86,8 +83,8 @@
 import { store, saveSettings, recordSession } from '../lib/store'
 
 const FIELDS = [
-  { key: 'squeezeS', label: 'Squeeze', unit: 's', min: 1, max: 30, step: 1 },
-  { key: 'relaxS', label: 'Relax', unit: 's', min: 1, max: 30, step: 1 },
+  { key: 'squeezeS', label: 'Hold', unit: 's', min: 1, max: 30, step: 1 },
+  { key: 'relaxS', label: 'Release', unit: 's', min: 1, max: 30, step: 1 },
   { key: 'repetitions', label: 'Reps', unit: '', min: 1, max: 60, step: 1 }
 ]
 
@@ -118,13 +115,23 @@ export default {
     phaseMs() {
       return (this.phase === 'squeeze' ? this.settings.squeezeS : this.settings.relaxS) * 1000
     },
-    visualPhase() {
-      return this.isActive ? this.phase : 'rest'
+    orbState() {
+      if (!this.isActive) return 'idle'
+      return this.phase
     },
     cue() {
       if (this.status === 'idle') return 'Ready'
-      if (this.status === 'done') return 'Nice work'
-      return this.phase === 'squeeze' ? 'Squeeze' : 'Relax'
+      if (this.status === 'done') return 'nice.'
+      return this.phase === 'squeeze' ? 'Squeeze' : 'release.'
+    },
+    /** Relax and finish get the pink italic serif; squeeze gets the slab. */
+    cueScript() {
+      return this.status === 'done' || (this.isActive && this.phase === 'relax')
+    },
+    eyebrow() {
+      if (this.status === 'done') return 'Session complete'
+      if (this.isActive) return `Rep ${this.pad(this.rep)} / ${this.pad(this.settings.repetitions)}`
+      return `${this.settings.repetitions} reps — ${this.settings.squeezeS}s / ${this.settings.relaxS}s — ${this.totalLabel}`
     },
     secondsLeft() {
       return Math.max(1, Math.ceil(this.remainingMs / 1000))
@@ -134,7 +141,7 @@ export default {
       if (!this.isActive) return 0
       return Math.min(1, Math.max(0, 1 - this.remainingMs / this.phaseMs))
     },
-    /** Squeeze contracts the circle, relax expands it, both eased over the phase. */
+    /** Squeeze contracts the orb, release expands it, both eased over the phase. */
     scale() {
       if (!this.isActive) return 0.78
       const eased = 0.5 - 0.5 * Math.cos(Math.PI * this.phaseProgress)
@@ -162,6 +169,9 @@ export default {
     this.stopLoop()
   },
   methods: {
+    pad(n) {
+      return String(n).padStart(2, '0')
+    },
     step(field, delta) {
       const next = Math.min(field.max, Math.max(field.min, this.settings[field.key] + delta))
       saveSettings({ [field.key]: next })
@@ -249,235 +259,238 @@ export default {
 
 <style scoped>
 .screen {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px 20px 8px;
-  gap: 16px;
+  padding-bottom: 18px;
 }
 
-.streaks {
+/* --- streak marks ---------------------------------------------------- */
+
+.marks {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 12px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  gap: 34px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
 }
 
-.streaks__item {
+.mark {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  min-width: 84px;
+  gap: 6px;
 }
 
-.streaks__value {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.1;
+.mark__n {
+  font-size: 30px;
 }
 
-.streaks__label {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
+.mark__l {
+  font-size: 9px;
+  letter-spacing: 0.2em;
 }
 
-.streaks__divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--border);
+.eyebrow {
+  margin: 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 9.5px;
 }
+
+/* --- stage ----------------------------------------------------------- */
 
 .stage {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 18px;
+  gap: 26px;
   min-height: 0;
+  padding: 10px 0 22px;
 }
 
-.stage__rep {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.circle-wrap {
+.orb-wrap {
+  align-self: center;
   display: grid;
   place-items: center;
-  width: min(72vw, 260px);
-  height: min(72vw, 260px);
+  width: min(52vw, 200px);
+  height: min(52vw, 200px);
 }
 
-.circle {
+.orb {
   width: 100%;
   height: 100%;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: var(--accent-soft);
-  border: 2px solid var(--accent);
-  color: var(--accent);
-  transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  border: 1.5px solid var(--rule);
+  transition: background-color 0.45s ease, border-color 0.45s ease, color 0.45s ease;
   will-change: transform;
 }
 
-.circle--squeeze {
-  background: color-mix(in srgb, var(--squeeze) 14%, transparent);
-  border-color: var(--squeeze);
-  color: var(--squeeze);
+.orb--squeeze {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
 }
 
-.circle--relax {
-  background: color-mix(in srgb, var(--relax) 14%, transparent);
-  border-color: var(--relax);
-  color: var(--relax);
+.orb--relax {
+  background: transparent;
+  border-color: var(--ink);
+  color: var(--ink);
 }
 
-.circle--idle {
-  animation: breathe 4s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0%,
-  100% {
-    opacity: 0.85;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.circle__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.circle__cue {
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-.circle__count {
-  font-size: 34px;
-  font-weight: 700;
+.orb__n {
+  font-size: 54px;
+  letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
 }
 
-.progress {
+/* The headline: the whole point of the layout. Fixed box height so the slab
+   and the taller italic swap without shunting the orb up and down. */
+.cue {
+  margin: 0;
   width: 100%;
-  max-width: 260px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: clamp(72px, 23vw, 118px);
+  font-size: clamp(54px, 17vw, 92px);
 }
 
-.progress__bar {
+.cue.script {
+  font-size: clamp(64px, 21vw, 108px);
+  margin-left: -0.03em;
+}
+
+/* --- progress hairline ----------------------------------------------- */
+
+.tick {
+  position: relative;
+  height: 1px;
+  background: var(--rule);
+  margin-bottom: 22px;
+}
+
+.tick__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
   height: 100%;
   background: var(--accent);
-  border-radius: 999px;
 }
+
+/* --- controls -------------------------------------------------------- */
 
 .controls {
   display: flex;
-  justify-content: center;
-  gap: 12px;
+  align-items: center;
+  gap: 6px;
 }
 
-.controls .btn {
+.controls .btn:first-child {
   flex: 1;
-  max-width: 220px;
+  max-width: 260px;
 }
 
 .notice {
-  margin: 0;
-  text-align: center;
-  font-size: 12px;
+  margin: 14px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
   color: var(--muted);
 }
 
+/* --- settings -------------------------------------------------------- */
+
 .settings {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  margin-top: 22px;
+  border-top: 1px solid var(--rule);
 }
 
 .settings__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
 .settings__row + .settings__row {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--rule);
 }
 
 .settings__label {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 9.5px;
 }
 
 .stepper {
   display: flex;
   align-items: center;
-  gap: 4px;
 }
 
 .stepper__btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--surface-2);
-  font-size: 18px;
-  font-weight: 700;
+  width: 46px;
+  height: 46px;
+  font-size: 19px;
   line-height: 1;
+  color: var(--ink);
+  transition: opacity 0.15s ease;
 }
 
 .stepper__btn:disabled {
-  opacity: 0.35;
+  opacity: 0.22;
   cursor: default;
 }
 
 .stepper__value {
-  min-width: 52px;
+  min-width: 62px;
   text-align: center;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 20px;
   font-variant-numeric: tabular-nums;
 }
 
-/* Collapse rather than pop, so the circle slides into place instead of jumping. */
-.fade-enter-active,
-.fade-leave-active {
+/* Collapse instead of popping, so the headline slides rather than jumps. */
+.collapse-enter-active,
+.collapse-leave-active {
   transition: opacity 0.25s ease, max-height 0.35s ease, margin 0.35s ease,
-    padding 0.35s ease, border-width 0.35s ease;
+    border-width 0.35s ease;
   overflow: hidden;
   max-height: 200px;
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.collapse-enter-from,
+.collapse-leave-to {
   opacity: 0;
   max-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  border-width: 0;
+  margin-top: 0;
+  border-top-width: 0;
+}
+
+/* --- vertical spine label (wide screens only) ------------------------- */
+
+.spine {
+  position: absolute;
+  top: 34%;
+  right: -14px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.spine__text {
+  writing-mode: vertical-rl;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+}
+
+.spine__rule {
+  width: 1px;
+  height: 64px;
+  background: var(--rule);
+}
+
+@media (min-width: 460px) {
+  .spine {
+    display: flex;
+  }
 }
 </style>

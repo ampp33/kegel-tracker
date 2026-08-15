@@ -1,7 +1,12 @@
-# Kegel Tracker
+# Hold &amp; Release
 
 Mobile-first Vue 3 (Options API) app: a guided kegel timer plus a stats page with
 streaks and a session calendar. Sessions are logged to Supabase (`kegel` schema).
+
+Editorial styling — oversized Archivo Black grotesque, Playfair Display italic in
+hot pink for the accent word, hairline rules instead of cards. Type is loaded from
+Google Fonts in [index.html](index.html); the stack degrades to system fonts if
+that request fails.
 
 ## Local dev
 
