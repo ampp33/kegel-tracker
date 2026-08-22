@@ -3,7 +3,11 @@
     <section class="marks">
       <div class="mark">
         <span class="mark__n display">{{ pad(store.currentStreak) }}</span>
-        <span class="mark__l micro">Day streak</span>
+        <span class="mark__l micro">Streak</span>
+      </div>
+      <div class="mark">
+        <span class="mark__n display">{{ pad(store.todayCount) }}</span>
+        <span class="mark__l micro">Today</span>
       </div>
       <div class="mark">
         <span class="mark__n display">{{ pad(store.longestStreak) }}</span>
